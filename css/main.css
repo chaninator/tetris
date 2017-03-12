@@ -1,0 +1,23 @@
+body {
+  background-color: gray;
+}
+
+td {
+  border-width: 1px;
+  border-color: gray;
+  width:25px;
+  height: 25px;
+}
+
+#playing-field {
+  border: 0;
+  margin: auto;
+}
+
+.empty {
+  background-color: white;
+}
+
+.stacked {
+  background-color: darkred;
+}
