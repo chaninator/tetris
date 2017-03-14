@@ -49,7 +49,7 @@ $(document).ready(function(){
     stacked[blockRow][blockCol] = 0;
     id = '#' + blockRow + '-' + blockCol;
     $(id).attr('class', 'empty');
-    console.log('Im graying this bad boy out!', id);
+    //console.log('Im graying this bad boy out!', id);
 
   };
 
@@ -76,7 +76,7 @@ $(document).ready(function(){
     if (isGoingToCollide(direction) == false) {
       blockEmpty(direction);
       blockShift(direction);
-      console.log('block move is executing move to: ', blockRow, blockCol, direction);
+      //console.log('block move is executing move to: ', blockRow, blockCol, direction);
       blockHighlight(direction);
     }
 
@@ -84,13 +84,14 @@ $(document).ready(function(){
   };
 
   function isGoingToCollide(direction) {
+    //console.log ('currents row:', stacked[blockRow], 'current column 1 to the left', stacked[blockRow][blockCol-1]);
     if (direction === 'down' && (blockRow === 19 || stacked[blockRow+1][blockCol] > 0 && blockRow <= stacked.length)){
       //console.log('Collision detected, abort!');
       return true;
-    } else if (direction === 'left' && blockCol === 0){
+    } else if (direction === 'left' && (blockCol === 0 || stacked[blockRow][blockCol-1] > 0)){
       //console.log('Collision detected, abort!', 'Cannot move left!', blockRow);
       return true;
-    } else if (direction === 'right' && blockCol === 9){
+    } else if (direction === 'right' && (blockCol === 9 || stacked[blockRow][blockCol+1] > 0)){
       //console.log('Collision detected, abort!', 'Cannot move right!');
       return true;
     } else {
@@ -121,25 +122,20 @@ $('html').keydown(function(e){
 
   function dropBlock(){
     console.log('Start of Drop Block');
-  newBlock();
+    newBlock();
     blockHighlight(blockRow, blockCol);
     var dropTimer = setInterval(function(){
       //capture current location info
 
 
       //check for collisions, otherwise move the block
-      console.log('row status: ', blockRow);
-      console.log('Col status: ', blockCol);
-      console.log('right before collision detection');
       if(isGoingToCollide('down') == true){
 
         //If the piece dropped, but the game isn't over
         //then restart the drop process
         clearInterval(dropTimer);
-        console.log('Clear Interval Step')
         //top row doesn't already have pieces
         if ($.inArray(2, stacked[0]) == -1 ){
-          console.log('before Drop Block')
           dropBlock();
 
         } else {
