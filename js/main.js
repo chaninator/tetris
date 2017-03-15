@@ -2,7 +2,8 @@
 $(document).ready(function(){
   var blockRow = 0;
   var blockCol = 5;
-
+  var boardWidth = 10;
+  var boardHeight = 20;
 
   var stacked = [
   [0,0,0,0,0,0,0,0,0,0],
@@ -27,28 +28,61 @@ $(document).ready(function(){
   [0,0,0,1,1,1,1,0,0,0]
   ];
 
+  var shapes= [
+    // I
+  [[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+   [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]],
+  // T
+  [[[0,0,0,0],[1,1,1,0],[0,1,0,0],[0,0,0,0]],
+   [[0,1,0,0],[1,1,0,0],[0,1,0,0],[0,0,0,0]],
+   [[0,1,0,0],[1,1,1,0],[0,0,0,0],[0,0,0,0]],
+   [[0,1,0,0],[0,1,1,0],[0,1,0,0],[0,0,0,0]]],
+  // L
+  [[[0,0,0,0],[1,1,1,0],[1,0,0,0],[0,0,0,0]],
+   [[1,1,0,0],[0,1,0,0],[0,1,0,0],[0,0,0,0]],
+   [[0,0,1,0],[1,1,1,0],[0,0,0,0],[0,0,0,0]],
+   [[0,1,0,0],[0,1,0,0],[0,1,1,0],[0,0,0,0]]],
+  // J
+  [[[1,0,0,0],[1,1,1,0],[0,0,0,0],[0,0,0,0]],
+   [[0,1,1,0],[0,1,0,0],[0,1,0,0],[0,0,0,0]],
+   [[0,0,0,0],[1,1,1,0],[0,0,1,0],[0,0,0,0]],
+   [[0,1,0,0],[0,1,0,0],[1,1,0,0],[0,0,0,0]]],
+  // Z
+  [[[0,0,0,0],[1,1,0,0],[0,1,1,0],[0,0,0,0]],
+   [[0,0,1,0],[0,1,1,0],[0,1,0,0],[0,0,0,0]]],
+  // S
+  [[[0,0,0,0],[0,1,1,0],[1,1,0,0],[0,0,0,0]],
+   [[0,1,0,0],[0,1,1,0],[0,0,1,0],[0,0,0,0]]],
+  // O
+  [[[0,1,1,0],[0,1,1,0],[0,0,0,0],[0,0,0,0]]]];
+
 
   //Build the board
-  for (var i = 0; i< stacked.length; i++) {
-    $('#playing-field').append("<tr id='" + i + "''></tr>")
-    console.log(i);
-    for (var j = 0; j< stacked[i].length; j++) {
-      if (stacked[i][j] == 0) {
-        var coordinate = i + '-' + j;
-        $('#' + i).append("<td id='" + coordinate + "' class='empty'></td>");
-      } else if (stacked[i][j] == 1) {
-        var coordinate = i + '-' + j;
-        $('#' + i).append("<td id='" + coordinate + "' class='stacked'></td>");
+  function buildBoard() {
+    spaces = []
+    var k;
+    for (var i = 0; i < 20; i++) {
+      spaces[i] = []
+      $('#playing-field').append("<tr id='" + i + "''></tr>")
+      for (var j = 0; j< 10; j++) {
+          var coordinate = i + '-' + j;
+          $('#' + i).append("<td id='" + coordinate + "' class='empty'></td>");
+            spaces[i][j] = $(['#' + coordinate].join(''))
       }
     }
   }
 
+  function blockColor(x, y, color){
+    spaces[x][y].css('background-color', color)
+  }
+
   //make empty a block that was just exited
-  function blockEmpty(direction){
+  function blockEmpty(piece, x, y, direction){
     //if (direction === 'down')
     stacked[blockRow][blockCol] = 0;
-    id = '#' + blockRow + '-' + blockCol;
-    $(id).attr('class', 'empty');
+    blockColor(blockRow, blockCol, 'white');
+    //id = '#' + blockRow + '-' + blockCol;
+    //$(id).attr('class', 'empty');
     //console.log('Im graying this bad boy out!', id);
 
   };
@@ -56,8 +90,7 @@ $(document).ready(function(){
   //highlighting of given coordinates
   function blockHighlight(direction) {
     stacked[blockRow][blockCol] = 2;
-    id = '#' + blockRow + '-' + blockCol;
-    $(id).attr('class', 'stacked');
+    blockColor(blockRow, blockCol, 'red');
   };
 
   //modify the array to reflect the changed location
@@ -73,25 +106,25 @@ $(document).ready(function(){
 
   //all the steps to move the block, left, right, or down
   function blockMove(direction) {
-    if (isGoingToCollide(direction) == false) {
-      blockEmpty(direction);
-      blockShift(direction);
+    if (isGoingToCollide(piece, x, y, direction) == false) {
+      blockEmpty(piece, x, y, direction);
+      blockShift(piece, x, y, direction);
       //console.log('block move is executing move to: ', blockRow, blockCol, direction);
-      blockHighlight(direction);
+      blockHighlight(piece, x, y, direction);
     }
 
 
   };
 
-  function isGoingToCollide(direction) {
+  function isGoingToCollide(piece, x, y, direction) {
     //console.log ('currents row:', stacked[blockRow], 'current column 1 to the left', stacked[blockRow][blockCol-1]);
-    if (direction === 'down' && (blockRow === 19 || stacked[blockRow+1][blockCol] > 0 && blockRow <= stacked.length)){
+    if (direction === 'down' && (blockRow === boardHeight-1 || stacked[blockRow+1][blockCol] > 0 && blockRow <= boardHeight)){
       //console.log('Collision detected, abort!');
       return true;
-    } else if (direction === 'left' && (blockCol === 0 || stacked[blockRow][blockCol-1] > 0)){
+    } else if (direction === 'left' && (y === 0 || stacked[blockRow][blockCol-1] > 0)){
       //console.log('Collision detected, abort!', 'Cannot move left!', blockRow);
       return true;
-    } else if (direction === 'right' && (blockCol === 9 || stacked[blockRow][blockCol+1] > 0)){
+    } else if (direction === 'right' && (y === boardWidth || stacked[blockRow][blockCol+1] > 0)){
       //console.log('Collision detected, abort!', 'Cannot move right!');
       return true;
     } else {
@@ -106,6 +139,9 @@ $('html').keydown(function(e){
       case 37:
         blockMove('left');
         break;
+      case 38:
+        blockRotate();
+        break;
       case 39:
         blockMove('right');
         break;
@@ -116,12 +152,15 @@ $('html').keydown(function(e){
   });
 
   function newBlock(){
-    blockRow = 0;
-    blockCol = 5;
+    //blockRow = 0;
+    //blockCol = 5;
+    currentBlock = shapes[1];
   }
 
-  function dropBlock(){
+  function start(){
+    buildBoard();
     console.log('Start of Drop Block');
+    var speed = 1000;
     newBlock();
     blockHighlight(blockRow, blockCol);
     var dropTimer = setInterval(function(){
@@ -136,7 +175,7 @@ $('html').keydown(function(e){
         clearInterval(dropTimer);
         //top row doesn't already have pieces
         if ($.inArray(2, stacked[0]) == -1 ){
-          dropBlock();
+          start();
 
         } else {
 
@@ -157,12 +196,12 @@ $('html').keydown(function(e){
         blockHighlight('down');
       }
 
-    }, 1000);
+    }, speed);
   }
 
 
 
-  dropBlock();
+  start();
 
 
 
