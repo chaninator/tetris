@@ -1,9 +1,11 @@
 
 $(document).ready(function(){
-  var blockRow = 0;
-  var blockCol = 5;
+  var blockY = 0;
+  var blockX = 5;
   var boardWidth = 10;
   var boardHeight = 20;
+  var spaces;
+  var currentBlock;
 
   var stacked = [
   [0,0,0,0,0,0,0,0,0,0],
@@ -25,7 +27,7 @@ $(document).ready(function(){
   [0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,1,1,1,1,0,0,0]
+  [0,0,0,0,0,0,0,0,0,0]
   ];
 
   var shapes= [
@@ -59,7 +61,7 @@ $(document).ready(function(){
 
   //Build the board
   function buildBoard() {
-    spaces = []
+    spaces = [];
     var k;
     for (var i = 0; i < 20; i++) {
       spaces[i] = []
@@ -72,131 +74,165 @@ $(document).ready(function(){
     }
   }
 
-  function blockColor(x, y, color){
-    spaces[x][y].css('background-color', color)
+  function blockColor(y, x, color){
+    spaces[y][x].css('background-color', color)
   }
 
   //make empty a block that was just exited
-  function blockEmpty(piece, x, y, direction){
-    //if (direction === 'down')
-    stacked[blockRow][blockCol] = 0;
-    blockColor(blockRow, blockCol, 'white');
-    //id = '#' + blockRow + '-' + blockCol;
-    //$(id).attr('class', 'empty');
-    //console.log('Im graying this bad boy out!', id);
-
+  function blockEmpty(y, x, direction){
+    for( var i=0; i < currentBlock.length ; i++){
+      for (var j=0; j < currentBlock[i].length; j++){
+        if(!currentBlock[i][j]){
+        stacked[y+i][x+j] = 0
+        blockColor(y-i, x+j, 'white');
+        }
+      }
+    }
   };
 
   //highlighting of given coordinates
-  function blockHighlight(direction) {
-    stacked[blockRow][blockCol] = 2;
-    blockColor(blockRow, blockCol, 'red');
+  function blockHighlight(y, x, direction) {
+    for( var i=0; i < currentBlock.length ; i++){
+      for (var j=0; j < currentBlock[i].length; j++){
+        if(currentBlock[i][j]){
+        stacked[y+i][x+j] = 2;
+        blockColor(y-i, x+j, 'red');
+        }
+      }
+    }
   };
 
   //modify the array to reflect the changed location
   function blockShift(direction) {
     if(direction === 'down'){
-      blockRow += 1;
+      blockY += 1;
     } else if (direction === 'left') {
-      blockCol -= 1;
+      blockX -= 1;
     } else if (direction === 'right' ) {
-      blockCol += 1;
+      blockX += 1;
     }
   }
 
   //all the steps to move the block, left, right, or down
   function blockMove(direction) {
-    if (isGoingToCollide(piece, x, y, direction) == false) {
-      blockEmpty(piece, x, y, direction);
-      blockShift(piece, x, y, direction);
-      //console.log('block move is executing move to: ', blockRow, blockCol, direction);
-      blockHighlight(piece, x, y, direction);
+    blockX;
+    blockY;
+    //console.log('calling blockMove');
+    //console.log('heading in ', direction, ' direction', blockX, blockY)
+    if (isGoingToCollide(direction) == false) {
+      blockEmpty(blockY, blockX, direction);
+      blockShift(direction);
+      blockHighlight(blockY, blockX, direction);
     }
 
 
   };
 
-  function isGoingToCollide(piece, x, y, direction) {
-    //console.log ('currents row:', stacked[blockRow], 'current column 1 to the left', stacked[blockRow][blockCol-1]);
-    if (direction === 'down' && (blockRow === boardHeight-1 || stacked[blockRow+1][blockCol] > 0 && blockRow <= boardHeight)){
-      //console.log('Collision detected, abort!');
-      return true;
-    } else if (direction === 'left' && (y === 0 || stacked[blockRow][blockCol-1] > 0)){
-      //console.log('Collision detected, abort!', 'Cannot move left!', blockRow);
-      return true;
-    } else if (direction === 'right' && (y === boardWidth || stacked[blockRow][blockCol+1] > 0)){
-      //console.log('Collision detected, abort!', 'Cannot move right!');
-      return true;
-    } else {
-      //console.log('free and clear to proceed!')
-      return false;
-    }
+  function isGoingToCollide(direction) {
+    y = blockY;
+    bottomRow = blockY;
+    x = blockX;
+    var collision = false;
 
+    for( var i=0; i < currentBlock.length; i++){
+      console.log('current i value: ', i);
+      for (var j=0; j < currentBlock[i].length-1; j++){
+              console.log('current j value: ', j);
+              console.log('very first down stacked values: ', y, i, x, j);
+              console.log('currentBlock[i]', currentBlock[i]);
+              console.log('stacked [y+1-i]', stacked[y+1-i][3]);
+
+
+        if (direction === 'down' && (bottomRow === boardHeight-1 || stacked[y+1-i][x+j] === 1)){
+          //console.log('the value of boardHeight-1:', boardHeight-1, ' and value of blockY: ', blockY);
+          collision = true;
+        } else if (direction === 'left' && (x === 0 || stacked[y-i][x-1+j] === 1)){
+          //console.log('Collision detected, abort!', 'Cannot move left!', stacked[y][x-1]);
+          collision = true;
+        } else if (direction === 'right' && (x === boardWidth-1 || stacked[y-i][x+1+j] === 1)){
+          //console.log('Collision detected, abort!', 'Cannot move right!');
+          collision = true;
+        } else {
+          console.log('free and clear to proceed ', direction, '!');
+        }
+      }
+    }
+    console.log('collision status: ', collision);
+    return collision;
   };
 
 $('html').keydown(function(e){
     switch(e.which){
       case 37:
         blockMove('left');
+        //console.log('pushing the LEFT button')
         break;
       case 38:
         blockRotate();
         break;
       case 39:
         blockMove('right');
+        //console.log('pushing the RIGHT button')
         break;
       case 40:
         blockMove('down');
+        //console.log('pushing the DOWN button')
         break;
     }
   });
 
   function newBlock(){
-    //blockRow = 0;
-    //blockCol = 5;
-    currentBlock = shapes[1];
+    blockY = 3;
+    blockX = 3;
+    currentBlock = shapes[0][1];
+    console.log(currentBlock)
   }
 
   function start(){
-    buildBoard();
+    console.log(!spaces);
+    if (!spaces) {
+      buildBoard();
+    }
+
     console.log('Start of Drop Block');
-    var speed = 1000;
+    var speed = 500;
     newBlock();
-    blockHighlight(blockRow, blockCol);
-    var dropTimer = setInterval(function(){
-      //capture current location info
+        blockHighlight(blockY, blockX);
+
+    // var dropTimer = setInterval(function(){
+    //   //capture current location info
 
 
-      //check for collisions, otherwise move the block
-      if(isGoingToCollide('down') == true){
+    //   //check for collisions, otherwise move the block
+    //   if(isGoingToCollide('down') == true){
 
-        //If the piece dropped, but the game isn't over
-        //then restart the drop process
-        clearInterval(dropTimer);
-        //top row doesn't already have pieces
-        if ($.inArray(2, stacked[0]) == -1 ){
-          start();
+    //     //If the piece dropped, but the game isn't over
+    //     //then restart the drop process
+    //     clearInterval(dropTimer);
+    //     //top row doesn't already have pieces
+    //     if ($.inArray(2, stacked[0]) == -1 ){
+    //       start();
 
-        } else {
+    //     } else {
 
-          //game over
-          clearInterval(dropTimer);
-          console.log('exiting')
-        }
+    //       //game over
+    //       clearInterval(dropTimer);
 
-      } else {
+    //     }
 
-        //delete block current location
-        blockEmpty('down');
+    //   } else {
 
-        //create new coordinates
-        blockShift('down');
+    //     //delete block current location
+    //     blockEmpty(blockY, blockX , 'down');
 
-        //move block to new coordinates
-        blockHighlight('down');
-      }
+    //     //create new coordinates
+    //     blockShift('down');
 
-    }, speed);
+    //     //move block to new coordinates
+    //     blockHighlight(blockY, blockX,'down');
+    //   }
+
+    // }, speed);
   }
 
 
