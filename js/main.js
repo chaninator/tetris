@@ -7,7 +7,7 @@ $(document).ready(function(){
   var spaces;
   var currentBlock;
 
-  var stacked = [
+  stacked = [
   [0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0],
@@ -82,8 +82,8 @@ $(document).ready(function(){
   function blockEmpty(y, x, direction){
     for( var i=0; i < currentBlock.length ; i++){
       for (var j=0; j < currentBlock[i].length; j++){
-        if(!currentBlock[i][j]){
-        stacked[y+i][x+j] = 0
+        if(currentBlock[i][j]){
+        stacked[y-i][x+j] = 0
         blockColor(y-i, x+j, 'white');
         }
       }
@@ -95,7 +95,7 @@ $(document).ready(function(){
     for( var i=0; i < currentBlock.length ; i++){
       for (var j=0; j < currentBlock[i].length; j++){
         if(currentBlock[i][j]){
-        stacked[y+i][x+j] = 2;
+        stacked[y-i][x+j] = 2;
         blockColor(y-i, x+j, 'red');
         }
       }
@@ -115,10 +115,8 @@ $(document).ready(function(){
 
   //all the steps to move the block, left, right, or down
   function blockMove(direction) {
-    blockX;
-    blockY;
-    //console.log('calling blockMove');
-    //console.log('heading in ', direction, ' direction', blockX, blockY)
+    //blockX;
+    //blockY;
     if (isGoingToCollide(direction) == false) {
       blockEmpty(blockY, blockX, direction);
       blockShift(direction);
@@ -127,6 +125,17 @@ $(document).ready(function(){
 
 
   };
+
+  function touchdown(){
+    for( var i=0; i < stacked.length ; i++){
+      for (var j=0; j < stacked[i].length; j++){
+        if(stacked[i][j]){
+        stacked[i][j] = 1
+        blockColor(i, j, 'red');
+        }
+      }
+    }
+  }
 
   function isGoingToCollide(direction) {
     y = blockY;
@@ -137,17 +146,13 @@ $(document).ready(function(){
     for( var i=0; i < currentBlock.length; i++){
       console.log('current i value: ', i);
       for (var j=0; j < currentBlock[i].length-1; j++){
-              console.log('current j value: ', j);
-              console.log('very first down stacked values: ', y, i, x, j);
-              console.log('currentBlock[i]', currentBlock[i]);
-              console.log('stacked [y+1-i]', stacked[y+1-i][3]);
 
 
         if (direction === 'down' && (bottomRow === boardHeight-1 || stacked[y+1-i][x+j] === 1)){
-          //console.log('the value of boardHeight-1:', boardHeight-1, ' and value of blockY: ', blockY);
+          touchdown();
           collision = true;
         } else if (direction === 'left' && (x === 0 || stacked[y-i][x-1+j] === 1)){
-          //console.log('Collision detected, abort!', 'Cannot move left!', stacked[y][x-1]);
+          console.log('Collision detected, abort!', 'Cannot move left!', stacked[y][x]);
           collision = true;
         } else if (direction === 'right' && (x === boardWidth-1 || stacked[y-i][x+1+j] === 1)){
           //console.log('Collision detected, abort!', 'Cannot move right!');
@@ -189,50 +194,49 @@ $('html').keydown(function(e){
   }
 
   function start(){
-    console.log(!spaces);
     if (!spaces) {
       buildBoard();
     }
 
     console.log('Start of Drop Block');
-    var speed = 500;
+    var speed = 1500;
     newBlock();
-        blockHighlight(blockY, blockX);
+    blockHighlight(blockY, blockX);
 
-    // var dropTimer = setInterval(function(){
-    //   //capture current location info
+    var dropTimer = setInterval(function(){
+      //capture current location info
 
 
-    //   //check for collisions, otherwise move the block
-    //   if(isGoingToCollide('down') == true){
+      //check for collisions, otherwise move the block
+      if(isGoingToCollide('down') == true){
 
-    //     //If the piece dropped, but the game isn't over
-    //     //then restart the drop process
-    //     clearInterval(dropTimer);
-    //     //top row doesn't already have pieces
-    //     if ($.inArray(2, stacked[0]) == -1 ){
-    //       start();
+        //If the piece dropped, but the game isn't over
+        //then restart the drop process
+        clearInterval(dropTimer);
+        //top row doesn't already have pieces
+        if ($.inArray(2, stacked[0]) == -1 ){
+          start();
 
-    //     } else {
+        } else {
 
-    //       //game over
-    //       clearInterval(dropTimer);
+          //game over
+          clearInterval(dropTimer);
 
-    //     }
+        }
 
-    //   } else {
+      } else {
 
-    //     //delete block current location
-    //     blockEmpty(blockY, blockX , 'down');
+        //delete block current location
+        blockEmpty(blockY, blockX , 'down');
 
-    //     //create new coordinates
-    //     blockShift('down');
+        //create new coordinates
+        blockShift('down');
 
-    //     //move block to new coordinates
-    //     blockHighlight(blockY, blockX,'down');
-    //   }
+        //move block to new coordinates
+        blockHighlight(blockY, blockX,'down');
+      }
 
-    // }, speed);
+    }, speed);
   }
 
 
