@@ -11,6 +11,9 @@ $(document).ready(function(){
   var speed = 1500;
  currentRotation = 0;
 
+ var themeMusic = $('body').append('<audio></audio').attr('src', 'theme.mp3');
+ themeMusic.play();
+
   stacked = [
   [3,0,0,0,0,0,0,0,0,0,0],
   [3,0,0,0,0,0,0,0,0,0,0],
@@ -31,7 +34,7 @@ $(document).ready(function(){
   [3,0,0,0,0,0,0,0,0,0,0],
   [3,0,0,0,0,0,0,0,0,0,0],
   [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
+  [3,1,1,1,0,0,0,1,1,1,1],
   [3,3,3,3,3,3,3,3,3,3,3]
   ];
 
@@ -84,17 +87,25 @@ $(document).ready(function(){
   [[[0,1,1,0],[0,1,1,0],[0,0,0,0],[0,0,0,0]]]];
 
 
+
+
   //Build the board
-  function() {
+  function buildBoard() {
+    $('#playing-field').html('');
     spaces = [];
     var k;
-    for (var i = 0; i < boardHeight; i++) {
+    for (var i = 0; i < stacked.length-1; i++) {
       spaces[i] = []
       $('#playing-field').append("<tr id='" + i + "''></tr>")
-      for (var j = 1; j< boardWidth+1; j++) {
+      for (var j = 1; j< stacked[i].length; j++) {
           var coordinate = i + '-' + j;
           $('#' + i).append("<td id='" + coordinate + "' class='empty'></td>");
-            spaces[i][j] = $(['#' + coordinate].join(''))
+            spaces[i][j] = $(['#' + coordinate].join(''));
+            if(stacked[i][j] === 1){
+              blockColor(i, j, 'red' );
+            } else if (stacked[i][j] === 0){
+              blockColor(i, j, 'white' );
+            }
       }
     }
   }
@@ -190,8 +201,25 @@ $(document).ready(function(){
       }
     }
     //console.log('im going to attempt to clearInterval droptimer... ')
+    checkLines();
     newBlock();
     blockHighlight(blockY, blockX);
+  }
+
+  function checkLines(){
+    var clearBoard = false;
+    for(var i=0; i < stacked.length-1; i++){
+      if ($.inArray(0, stacked[i]) == -1) {
+        stacked.splice(i, 1);
+        stacked.unshift([3,0,0,0,0,0,0,0,0,0,0])
+        clearBoard = true;
+        console.log('IM CLEARING LINES!');
+      }
+    }
+    if (clearBoard === true) {
+      buildBoard();
+    }
+
   }
 
   function isGoingToCollide(direction) {
@@ -212,11 +240,11 @@ $(document).ready(function(){
       for (var j=0; j < 4; j++){
         if(block[i][j]){
           if (direction === 'down' && (bottomRow === boardHeight || stacked[y+1-i][x+j] === 1)){
-            console.log('im at the bottom row-- kickoff touchdown');
+            //console.log('im at the bottom row-- kickoff touchdown');
             touchdown();
             collision = true;
           } else if (direction === 'left' && (x === 0 || stacked[y-i][x+j-1] === 1 ||stacked[y-i][x-1+j] === 3)){
-            console.log('Collision detected, abort!', 'Cannot move left!', stacked[y][x]);
+            //console.log('Collision detected, abort!', 'Cannot move left!', stacked[y][x]);
             collision = true;
           } else if (direction === 'right' && (x === boardWidth-2 || stacked[y-i][x+1+j] === 1)){
             //console.log('Collision detected, abort!', 'Cannot move right!');
@@ -227,11 +255,11 @@ $(document).ready(function(){
         }
       }
     }
-    console.log('free and clear to proceed with', direction, '!');
-            console.log('The X point is: ', x, ' the Y point is: ', y);
-            console.log('stacked[y+1-i][x+j] ', stacked[y+1-i][x+j] );
-            console.log('collision status: ', collision);
-            console.log(stacked);
+            //console.log('free and clear to proceed with', direction, '!');
+            //console.log('The X point is: ', x, ' the Y point is: ', y);
+            //console.log('stacked[y+1-i][x+j] ', stacked[y+1-i][x+j] );
+            //console.log('collision status: ', collision);
+            //console.log(stacked);
             return collision;
   };
 
