@@ -266,9 +266,9 @@ $(document).ready(function(){
     bottomRow = blockY;
     var collision = false;
     var block = currentBlock;
+    var hitBottom = false;
 
     if (direction === 'rotate') {
-
       //if the move is to rotate, look ahead to see if its allowed
       block = blockRotateDetect();
     }
@@ -279,7 +279,7 @@ $(document).ready(function(){
         if(block[i][j]){
           if (direction === 'down' && (bottomRow === boardHeight || stacked[y+1-i][x+j] === 1)){
             //console.log('im at the bottom row-- kickoff touchdown');
-            touchdown();
+            hitBottom = true;
             collision = true;
           } else if (direction === 'left' && (x === 0 || stacked[y-i][x+j-1] === 1 ||stacked[y-i][x-1+j] === 3)){
             //console.log('Collision detected, abort!', 'Cannot move left!', stacked[y][x]);
@@ -292,6 +292,10 @@ $(document).ready(function(){
           }
         }
       }
+    }
+
+    if (hitBottom === true) {
+      touchdown();
     }
             //console.log('free and clear to proceed with', direction, '!');
             //console.log('The X point is: ', x, ' the Y point is: ', y);
@@ -322,18 +326,16 @@ $('html').keydown(function(e){
   });
 
   function newBlock(){
-    blockY = 4;
-    blockX = 4;
+    blockY = 3;
+    blockX = 3;
 
     //if we're outta blocks, restock
     if(bagOfBlocks.length === 0){
       for (var g=0; g<7; g++){
-        for (var h=0; h< 10; h++){
-          var a = shapes[g];
-          bagOfBlocks.push(a);
+        for (var h=0; h<10; h++){
+          bagOfBlocks.push(shapes[g]);
         }
-
-      }
+      }  //Now get shufflin', fisher-yates style
       for (var i = bagOfBlocks.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = bagOfBlocks[i];
@@ -341,10 +343,11 @@ $('html').keydown(function(e){
         bagOfBlocks[j] = temp;
       }
     }
-      console.log(bagOfBlocks);
+      //console.log(bagOfBlocks);
+      console.log(stacked);
+      currentRotation = 0;
       currentShape = bagOfBlocks.pop();
       currentBlock = currentShape[currentRotation];
-      blockHighlight(blockY, blockX);
       //console.log('currentShape: ', currentShape, ' currentBlock', currentBlock);
   }
 
@@ -354,6 +357,8 @@ $('html').keydown(function(e){
     }
     //make a new block
     newBlock();
+    blockHighlight(blockY, blockX);
+
 
     //start dropping blocks
     go();
