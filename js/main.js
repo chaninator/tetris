@@ -4,12 +4,11 @@ $(document).ready(function(){
   blockX = 5;
   var boardWidth = 10;
   var boardHeight = 20;
-  var spaces;
-  var currentBlock;
-  var currentShape = 1;
-  var dropTimer;
+  var spaces, droptimer, currentBlock;
+  var currentShape;
   var speed = 1500;
   currentRotation = 0;
+  var bagOfBlocks = [];
 
   var themeMusic = new Audio('theme.mp3');
 
@@ -34,7 +33,7 @@ $(document).ready(function(){
   [3,0,0,0,0,0,0,0,0,0,0],
   [3,0,0,0,0,0,0,0,0,0,0],
   [3,0,0,0,0,0,0,0,0,0,0],
-  [3,1,1,1,0,0,0,1,1,1,1],
+  [3,0,0,0,0,0,0,0,0,0,0],
   [3,3,3,3,3,3,3,3,3,3,3]
   ];
 
@@ -68,23 +67,62 @@ $(document).ready(function(){
     [0,1,0,0],
     [0,0,0,0]]],
   // L
-  [[[0,0,0,0],[1,1,1,0],[1,0,0,0],[0,0,0,0]],
-   [[1,1,0,0],[0,1,0,0],[0,1,0,0],[0,0,0,0]],
-   [[0,0,1,0],[1,1,1,0],[0,0,0,0],[0,0,0,0]],
-   [[0,1,0,0],[0,1,0,0],[0,1,1,0],[0,0,0,0]]],
+  [[[0,0,0,0],
+    [1,1,1,0],
+    [1,0,0,0],
+    [0,0,0,0]],
+   [[1,1,0,0],
+    [0,1,0,0],
+    [0,1,0,0],
+    [0,0,0,0]],
+   [[0,0,1,0],
+    [1,1,1,0],
+    [0,0,0,0],
+    [0,0,0,0]],
+   [[0,1,0,0],
+    [0,1,0,0],
+    [0,1,1,0],
+    [0,0,0,0]]],
   // J
-  [[[1,0,0,0],[1,1,1,0],[0,0,0,0],[0,0,0,0]],
-   [[0,1,1,0],[0,1,0,0],[0,1,0,0],[0,0,0,0]],
-   [[0,0,0,0],[1,1,1,0],[0,0,1,0],[0,0,0,0]],
-   [[0,1,0,0],[0,1,0,0],[1,1,0,0],[0,0,0,0]]],
+  [[[1,0,0,0],
+    [1,1,1,0],
+    [0,0,0,0],
+    [0,0,0,0]],
+   [[0,1,1,0],
+    [0,1,0,0],
+    [0,1,0,0],
+    [0,0,0,0]],
+   [[0,0,0,0],
+    [1,1,1,0],
+    [0,0,1,0],
+    [0,0,0,0]],
+   [[0,1,0,0],
+    [0,1,0,0],
+    [1,1,0,0],
+    [0,0,0,0]]],
   // Z
-  [[[0,0,0,0],[1,1,0,0],[0,1,1,0],[0,0,0,0]],
-   [[0,0,1,0],[0,1,1,0],[0,1,0,0],[0,0,0,0]]],
+  [[[0,0,0,0],
+    [1,1,0,0],
+    [0,1,1,0],
+    [0,0,0,0]],
+   [[0,0,1,0],
+   [0,1,1,0],
+   [0,1,0,0],
+   [0,0,0,0]]],
   // S
-  [[[0,0,0,0],[0,1,1,0],[1,1,0,0],[0,0,0,0]],
-   [[0,1,0,0],[0,1,1,0],[0,0,1,0],[0,0,0,0]]],
+  [[[0,0,0,0],
+    [0,1,1,0],
+    [1,1,0,0],
+    [0,0,0,0]],
+   [[0,1,0,0],
+   [0,1,1,0],
+   [0,0,1,0],
+   [0,0,0,0]]],
   // O
-  [[[0,1,1,0],[0,1,1,0],[0,0,0,0],[0,0,0,0]]]];
+  [[[0,1,1,0],
+    [0,1,1,0],
+    [0,0,0,0],
+    [0,0,0,0]]]];
 
 
 
@@ -158,22 +196,22 @@ $(document).ready(function(){
   }
 
   function blockRotateDetect() {
-    if(currentRotation === shapes[currentShape].length-1){
-      return shapes[currentShape][0];
+    if(currentRotation === currentShape.length-1){
+      return currentShape[0];
     } else  {
-      return shapes[currentShape][currentRotation+1];
+      return currentShape[currentRotation+1];
     }
   }
 
   function blockRotate() {
     console.log('trying to rotate to shape: ', currentShape, ' rotation#: ', currentRotation);
 
-    if(currentRotation === shapes[currentShape].length-1){
+    if(currentRotation === currentShape.length-1){
       currentRotation = 0;
     } else  {
       currentRotation++;
     }
-    currentBlock = shapes[currentShape][currentRotation];
+    currentBlock = currentShape[currentRotation];
   }
 
 
@@ -284,32 +322,50 @@ $('html').keydown(function(e){
   });
 
   function newBlock(){
-    blockY = 3;
-    blockX = 3;
-    currentRotation = 0;
-    currentBlock = shapes[currentShape][currentRotation];
-    console.log(currentBlock)
+    blockY = 4;
+    blockX = 4;
+
+    //if we're outta blocks, restock
+    if(bagOfBlocks.length === 0){
+      for (var g=0; g<7; g++){
+        for (var h=0; h< 10; h++){
+          var a = shapes[g];
+          bagOfBlocks.push(a);
+        }
+
+      }
+      for (var i = bagOfBlocks.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = bagOfBlocks[i];
+        bagOfBlocks[i] = bagOfBlocks[j];
+        bagOfBlocks[j] = temp;
+      }
+    }
+      console.log(bagOfBlocks);
+      currentShape = bagOfBlocks.pop();
+      currentBlock = currentShape[currentRotation];
+      blockHighlight(blockY, blockX);
+      //console.log('currentShape: ', currentShape, ' currentBlock', currentBlock);
   }
 
   function start(){
     if (!spaces) {
       buildBoard();
     }
+    //make a new block
     newBlock();
-    blockHighlight(blockY, blockX);
 
     //start dropping blocks
     go();
-
-
   }
 
   function go(){
-    themeMusic.play();
+    // //commenting this out so I don't kill myself
+    // themeMusic.loop = true;
+    // themeMusic.play();
+    // themeMusic.playbackRate = 1.5;
     dropTimer = setInterval(function(){
 
-
-      console.log($.inArray(2, stacked[0]) != -1 );
       //if ($.inArray(2, stacked[0]) == -1 ) {
         blockMove('down');
        // }
@@ -318,7 +374,6 @@ $('html').keydown(function(e){
 
   function stop(){
       clearInterval(dropTimer);
-      //      if ($.inArray(2, stacked[0]) != -1 )
   }
 
 
