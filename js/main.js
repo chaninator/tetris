@@ -4,11 +4,12 @@ $(document).ready(function(){
   blockX = 5;
   var boardWidth = 10;
   var boardHeight = 20;
-  var spaces, droptimer, currentBlock;
+  var spaces, droptimer, currentBlock, currentColor;
   var currentShape;
   var speed = 1500;
   currentRotation = 0;
   var bagOfBlocks = [];
+  var bagOfColors = [];
 
   var themeMusic = new Audio('theme.mp3');
 
@@ -37,9 +38,16 @@ $(document).ready(function(){
   [3,3,3,3,3,3,3,3,3,3,3,3]
   ];
 
+  var colors = [
+  'red',
+  'green',
+  'magenta',
+  'yellow',
+  'orange',
+  'cyan',
+  'blue'];
 
-
-  var shapes= [
+  var shapes = [
     // I
   [[[0,0,0,0],
     [1,1,1,1],
@@ -140,7 +148,7 @@ $(document).ready(function(){
           $('#' + i).append("<td id='" + coordinate + "' class='empty'></td>");
             spaces[i][j] = $(['#' + coordinate].join(''));
             if(stacked[i][j] === 1){
-              blockColor(i, j, 'red' );
+              blockColor(i, j, 'darkgray' );
             } else if (stacked[i][j] === 0){
               blockColor(i, j, 'white' );
             }
@@ -156,7 +164,7 @@ $(document).ready(function(){
     console.log('coords: ', y, x, color);
     console.log(stacked[y]);
     spaces[y][x].css('background-color', color)
-  }
+  };
 
   //make empty a block that was just exited
   function blockEmpty(y, x, direction){
@@ -179,7 +187,7 @@ $(document).ready(function(){
       for (var j=0; j < 4; j++){
         if(currentBlock[i][j]){
         stacked[y-i][x+j] = 2;
-        blockColor(y-i, x+j, 'red');
+        blockColor(y-i, x+j, currentColor);
 
         }
       }
@@ -197,6 +205,8 @@ $(document).ready(function(){
     };
   }
 
+  //this is just the check ahead for collision detection,
+  //without actually changing anything
   function blockRotateDetect() {
     if(currentRotation === currentShape.length-1){
       return currentShape[0];
@@ -205,6 +215,7 @@ $(document).ready(function(){
     }
   }
 
+  //The actual rotation
   function blockRotate() {
     console.log('trying to rotate to shape: ', currentShape, ' rotation#: ', currentRotation);
 
@@ -219,8 +230,7 @@ $(document).ready(function(){
 
   //all the steps to move the block, left, right, or down
   function blockMove(direction) {
-    //blockX;
-    //blockY;
+
     if (isGoingToCollide(direction) == false) {
       blockEmpty(blockY, blockX, direction);
       blockShift(direction);
@@ -236,7 +246,7 @@ $(document).ready(function(){
       for (var j=1; j < stacked[i].length-1; j++){
         if(stacked[i][j]){
         stacked[i][j] = 1
-        blockColor(i, j, 'red');
+        blockColor(i, j, 'darkgray');
         }
       }
     }
@@ -310,6 +320,7 @@ $('html').keydown(function(e){
         break;
       case 38:
         blockMove('rotate');
+        //console.log('pushing the ROTATE button')
         break;
       case 39:
         blockMove('right');
@@ -330,18 +341,23 @@ $('html').keydown(function(e){
     if(bagOfBlocks.length === 0){
       for (var g=0; g<7; g++){
         for (var h=0; h<10; h++){
+          bagOfColors.push(colors[g])
           bagOfBlocks.push(shapes[g]);
         }
       }  //Now get shufflin', fisher-yates style
       for (var i = bagOfBlocks.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = bagOfBlocks[i];
+        var temp2 = bagOfColors[i];
         bagOfBlocks[i] = bagOfBlocks[j];
+        bagOfColors[i] = bagOfColors[j];
         bagOfBlocks[j] = temp;
+        bagOfColors[j] = temp2;
       }
     }
       currentRotation = 0;
       currentShape = bagOfBlocks.pop();
+      currentColor = bagOfColors.pop();
       currentBlock = currentShape[currentRotation];
   }
 
@@ -349,7 +365,7 @@ $('html').keydown(function(e){
     if (!spaces) {
       buildBoard();
     }
-    //make a new block
+    //make a new block and place it up top
     newBlock();
     blockHighlight(blockY, blockX);
 
