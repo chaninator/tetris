@@ -14,27 +14,27 @@ $(document).ready(function(){
 
 
   stacked = [
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,0,0,0,0,0,0,0,0,0,0],
-  [3,3,3,3,3,3,3,3,3,3,3]
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,0,0,0,0,0,0,0,0,0,0,3],
+  [3,3,3,3,3,3,3,3,3,3,3,3]
   ];
 
 
@@ -135,7 +135,7 @@ $(document).ready(function(){
     for (var i = 0; i < stacked.length-1; i++) {
       spaces[i] = []
       $('#playing-field').append("<tr id='" + i + "''></tr>")
-      for (var j = 1; j< stacked[i].length; j++) {
+      for (var j = 1; j< stacked[i].length-1; j++) {
           var coordinate = i + '-' + j;
           $('#' + i).append("<td id='" + coordinate + "' class='empty'></td>");
             spaces[i][j] = $(['#' + coordinate].join(''));
@@ -153,6 +153,8 @@ $(document).ready(function(){
   }
 
   function blockColor(y, x, color){
+    console.log('coords: ', y, x, color);
+    console.log(stacked[y]);
     spaces[y][x].css('background-color', color)
   }
 
@@ -197,10 +199,8 @@ $(document).ready(function(){
 
   function blockRotateDetect() {
     if(currentRotation === currentShape.length-1){
-      console.log('currentRotation is 0');
       return currentShape[0];
     } else  {
-      console.log('currentRotation+1', currentRotation+1);
       return currentShape[currentRotation+1];
     }
   }
@@ -233,14 +233,13 @@ $(document).ready(function(){
   function touchdown(){
     console.log('blockX: ', blockX, 'blockY: ', blockY);
     for( var i=0; i < stacked.length-1 ; i++){
-      for (var j=1; j < stacked[i].length; j++){
+      for (var j=1; j < stacked[i].length-1; j++){
         if(stacked[i][j]){
         stacked[i][j] = 1
         blockColor(i, j, 'red');
         }
       }
     }
-    //console.log('im going to attempt to clearInterval droptimer... ')
     checkLines();
     newBlock();
     blockHighlight(blockY, blockX);
@@ -251,7 +250,7 @@ $(document).ready(function(){
     for(var i=0; i < stacked.length-1; i++){
       if ($.inArray(0, stacked[i]) == -1) {
         stacked.splice(i, 1);
-        stacked.unshift([3,0,0,0,0,0,0,0,0,0,0])
+        stacked.unshift([3,0,0,0,0,0,0,0,0,0,0,3])
         clearBoard = true;
         console.log('IM CLEARING LINES!');
       }
@@ -272,7 +271,6 @@ $(document).ready(function(){
 
     if (direction === 'rotate') {
       //if the move is to rotate, look ahead to see if its allowed
-      console.log('checking if this is a legal move...')
       block = blockRotateDetect();
     }
 
@@ -280,19 +278,19 @@ $(document).ready(function(){
       //console.log('current i value: ', i);
       for (var j=0; j < 4; j++){
         if(block[i][j]){
-          if (direction === 'down' && (bottomRow === boardHeight || stacked[y+1-i][x+j] === 1)){
+          if (direction === 'down' && (bottomRow === boardHeight || stacked[y+1-i][x+j] === 1 || stacked[y+1-i][x+j] === 3)){
             //console.log('im at the bottom row-- kickoff touchdown');
             hitBottom = true;
             collision = true;
           } else if (direction === 'left' && (x === 0 || stacked[y-i][x+j-1] === 1 ||stacked[y-i][x-1+j] === 3)){
             //console.log('Collision detected, abort!', 'Cannot move left!', stacked[y][x]);
             collision = true;
-          } else if (direction === 'right' && (x === boardWidth-2 || stacked[y-i][x+1+j] === 1)){
+          } else if (direction === 'right' && (stacked[y-i][x+1+j] === 1 || stacked[y-i][x+1+j] === 3)){
             //console.log('Collision detected, abort!', 'Cannot move right!');
             collision = true;
           } else if (direction === 'rotate' && (stacked[y+i][x+j] === 1 || stacked[y+i][x+j] === 3)) {
             collision = true;
-            console.log('stacked coords: ' , i, j, 'val: ', stacked[y+i][x+j]);
+            //console.log('stacked coords: ' , i, j, 'val: ', stacked[y+i][x+j]);
           }
         }
       }
@@ -301,12 +299,7 @@ $(document).ready(function(){
     if (hitBottom === true) {
       touchdown();
     }
-            //console.log('free and clear to proceed with', direction, '!');
-            //console.log('The X point is: ', x, ' the Y point is: ', y);
-            //console.log('stacked[y+1-i][x+j] ', stacked[y+1-i][x+j] );
-            console.log('collision status: ', collision);
-            //console.log(stacked);
-            return collision;
+    return collision;
   };
 
 $('html').keydown(function(e){
