@@ -106,18 +106,18 @@ $(document).ready(function(){
     [0,1,1,0],
     [0,0,0,0]],
    [[0,0,1,0],
-   [0,1,1,0],
-   [0,1,0,0],
-   [0,0,0,0]]],
+    [0,1,1,0],
+    [0,1,0,0],
+    [0,0,0,0]]],
   // S
   [[[0,0,0,0],
     [0,1,1,0],
     [1,1,0,0],
     [0,0,0,0]],
    [[0,1,0,0],
-   [0,1,1,0],
-   [0,0,1,0],
-   [0,0,0,0]]],
+    [0,1,1,0],
+    [0,0,1,0],
+    [0,0,0,0]]],
   // O
   [[[0,1,1,0],
     [0,1,1,0],
@@ -197,8 +197,10 @@ $(document).ready(function(){
 
   function blockRotateDetect() {
     if(currentRotation === currentShape.length-1){
+      console.log('currentRotation is 0');
       return currentShape[0];
     } else  {
+      console.log('currentRotation+1', currentRotation+1);
       return currentShape[currentRotation+1];
     }
   }
@@ -270,6 +272,7 @@ $(document).ready(function(){
 
     if (direction === 'rotate') {
       //if the move is to rotate, look ahead to see if its allowed
+      console.log('checking if this is a legal move...')
       block = blockRotateDetect();
     }
 
@@ -287,8 +290,9 @@ $(document).ready(function(){
           } else if (direction === 'right' && (x === boardWidth-2 || stacked[y-i][x+1+j] === 1)){
             //console.log('Collision detected, abort!', 'Cannot move right!');
             collision = true;
-          } else if (direction === 'rotate' && stacked[i][j] === 1) {
+          } else if (direction === 'rotate' && (stacked[y+i][x+j] === 1 || stacked[y+i][x+j] === 3)) {
             collision = true;
+            console.log('stacked coords: ' , i, j, 'val: ', stacked[y+i][x+j]);
           }
         }
       }
@@ -300,7 +304,7 @@ $(document).ready(function(){
             //console.log('free and clear to proceed with', direction, '!');
             //console.log('The X point is: ', x, ' the Y point is: ', y);
             //console.log('stacked[y+1-i][x+j] ', stacked[y+1-i][x+j] );
-            //console.log('collision status: ', collision);
+            console.log('collision status: ', collision);
             //console.log(stacked);
             return collision;
   };
@@ -343,12 +347,9 @@ $('html').keydown(function(e){
         bagOfBlocks[j] = temp;
       }
     }
-      //console.log(bagOfBlocks);
-      console.log(stacked);
       currentRotation = 0;
       currentShape = bagOfBlocks.pop();
       currentBlock = currentShape[currentRotation];
-      //console.log('currentShape: ', currentShape, ' currentBlock', currentBlock);
   }
 
   function start(){
