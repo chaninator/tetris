@@ -9,10 +9,10 @@ $(document).ready(function(){
   var currentShape = 1;
   var dropTimer;
   var speed = 1500;
- currentRotation = 0;
+  currentRotation = 0;
 
- var themeMusic = $('body').append('<audio></audio').attr('src', 'theme.mp3');
- themeMusic.play();
+  var themeMusic = new Audio('theme.mp3');
+
 
   stacked = [
   [3,0,0,0,0,0,0,0,0,0,0],
@@ -305,6 +305,7 @@ $('html').keydown(function(e){
   }
 
   function go(){
+    themeMusic.play();
     dropTimer = setInterval(function(){
 
 
