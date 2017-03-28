@@ -1,9 +1,8 @@
 
 $(document).ready(function(){
-  blockY = 0;
-  blockX = 5;
-  var boardWidth = 10;
-  var boardHeight = 20;
+  var blockY = 0, blockX = 5;
+  var boardWidth = 10, boardHeight = 20;
+  var score = 0;
   var spaces, droptimer, currentBlock, currentColor;
   var currentShape;
   var speed = 1500;
@@ -156,6 +155,8 @@ $(document).ready(function(){
     }
   }
 
+
+
   test = function spacesGet() {
     return spaces;
   }
@@ -255,13 +256,20 @@ $(document).ready(function(){
     blockHighlight(blockY, blockX);
   }
 
+  /*
+   * Remove any full lines, replace with empty line on top,
+   * and then rebuild the board based on the new array status
+   */
   function checkLines(){
     var clearBoard = false;
     for(var i=0; i < stacked.length-1; i++){
       if ($.inArray(0, stacked[i]) == -1) {
+
         stacked.splice(i, 1);
         stacked.unshift([3,0,0,0,0,0,0,0,0,0,0,3])
         clearBoard = true;
+        score += 100;
+        $('#score').text(score);
         console.log('IM CLEARING LINES!');
       }
     }
@@ -271,6 +279,12 @@ $(document).ready(function(){
 
   }
 
+  /*
+   * check for collision against pieces or walls
+   * and return true if it's going to collide.
+   * If it is going to collide and the direction is down,
+   * call touchdown() to land the piece.
+   */
   function isGoingToCollide(direction) {
     y = blockY;
     x = blockX;
@@ -333,6 +347,12 @@ $('html').keydown(function(e){
     }
   });
 
+  /*
+   * reestablish the X, Y coords at the starting spot.
+   * if bagOfBlocks is empty repopulate with 10 blocks of
+   * each and then randomize.
+   * Reset the current block, color, and rotation
+   */
   function newBlock(){
     blockY = 3;
     blockX = 3;
@@ -361,6 +381,9 @@ $('html').keydown(function(e){
       currentBlock = currentShape[currentRotation];
   }
 
+  /*
+  * The whole thing starts here.
+  */
   function start(){
     if (!spaces) {
       buildBoard();
@@ -369,16 +392,20 @@ $('html').keydown(function(e){
     newBlock();
     blockHighlight(blockY, blockX);
 
-
     //start dropping blocks
     go();
   }
 
+  /*
+  * this turns on music and restarts drop timer, but does
+  * not release a new block.  Should be used to resume from
+  * Pause, not a full game restart.
+  */
   function go(){
-    // //commenting this out so I don't kill myself
-    // themeMusic.loop = true;
-    // themeMusic.play();
-    // themeMusic.playbackRate = 1.5;
+    //commenting this out so I don't kill myself
+    //themeMusic.loop = true;
+    //themeMusic.play();
+    //themeMusic.playbackRate = 1;
     dropTimer = setInterval(function(){
 
       //if ($.inArray(2, stacked[0]) == -1 ) {

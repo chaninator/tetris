@@ -1,17 +1,92 @@
+@import url('https://fonts.googleapis.com/css?family=Monoton');
+
 body {
   background-color: gray;
+  font-family: 'Monoton', cursive;
+  margin: 0;
 }
 
 td {
-  border-width: 1px;
-  border-color: gray;
+  border: 0px;
+  border-spacing: 0;
+  border-width: 0;
   width:25px;
   height: 25px;
+  margin: 0;
+}
+
+
+div.container {
+
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+  padding: 0;
+}
+
+div.left, div.right {
+  position: absolute;
+  width: 20%;
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: auto;
+  background-color: white;
+  vertical-align: center;
+  border-radius: 50px;
+  text-align:center;
+  height: 150px;
+  line-height: 150px;
+  font-size: 35px;
+}
+
+
+
+div.left {
+  /*float: left;*/
+  left: 100px;
+}
+
+div.right {
+  /*float*/: right;
+  right: 100px;
+  height: 300px;
+}
+
+div.main {
+  width: 50%;
+  padding: auto;
+  text-aling: center;
+  margin: auto;
+}
+
+.one {
+  margin: 0;
+  height: 50%;
+  width: 100%;
+  background-color: green;
+  border-top-right-radius: 50px;
+  border-top-left-radius: 50px;
+}
+
+.two  {
+  margin: 0;
+  height: 50%;
+  width: 100%;
+  background-color: white;
+  padding-bottom: 5px;
+  border-bottom-right-radius: 50px;
+  border-bottom-left-radius: 50px;
 }
 
 #playing-field {
-  border: 0;
+  border-color: blue;
+  border-width: 25px;
+  border-spacing: 0px;
+  border: 0px;
   margin: auto;
+  table-spacing: 0;
+
 }
 
 .empty {
@@ -21,3 +96,16 @@ td {
 .stacked {
   background-color: darkred;
 }
+
+/*#score {
+  position: absolute;
+  float: left;
+  margin-left: 100px;
+  padding: 25px;
+  width:  100px;
+  height: 50px;
+  background-color: white;
+  border-radius: 25px;
+  text-align: center;
+  font-size: 35px;
+}*/
